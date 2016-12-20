@@ -1,0 +1,168 @@
+﻿<!doctype html> 
+ <html> 
+ <head> 
+ <meta charset=utf-8> 
+ <title>Hotels in taiwan</title> 
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> 
+ <style> 
+ a { 
+     text-decoration:none; 
+      color:black; 
+ } 
+   
+ div{ float:left}  
+ </style> 
+ <script> 
+ 	var 目前頁面; 
+ 	var 總頁面; 
+ 	var items; 
+ 	var 表格; 
+ 	function last_page(){ 
+ 		if(目前頁面==0); 
+ 		else{ 
+ 			目前頁面=目前頁面-1; 
+ 			if(目前頁面==0)document.getElementById('lastpage').disabled=true; 
+ 			List10Hotel(); 
+ 		} 
+ 	} 
+ 	function next_page(){ 
+ 		document.getElementById('lastpage').removeAttribute('disabled'); 
+ 		if(目前頁面==總頁面); 
+ 		else{ 
+ 			目前頁面=目前頁面+1; 
+ 			List10Hotel(); 
+ 		} 
+ 	} 
+ 	function showAllDescription(i){ 
+ 		document.getElementById('description').innerHTML=items[i].Description; 
+ 	} 
+ 	function showAllService(i){ 
+ 		document.getElementById('Service').innerHTML=items[i].Serviceinfo; 
+ 	} 
+ 	function showInformation(i){ 
+ 		var map=document.getElementById('maps'); 
+ 		var url='http://maps.google.com.tw/maps?f=q&hl=zh-TW&geocode=&q='; 
+ 		var 簡介=items[i].Description; 
+ 		var 服務=items[i].Serviceinfo; 
+ 		var img1=items[i].Picture1; 
+ 		var img2=items[i].Picture2; 
+ 		var img3=items[i].Picture3; 
+ 		if(img1=="")img1="http://nicky.esy.es/web/hw5/noimg.jpg"; 
+ 		if(img2=="")img2="http://nicky.esy.es/web/hw5/noimg.jpg"; 
+ 		if(img3=="")img3="http://nicky.esy.es/web/hw5/noimg.jpg"; 
+ 		if(簡介.length>50) 簡介= 簡介.substr(0,50)+'<a href="javascript: void(0)" onclick="showAllDescription('+i+')" style="color:blue">...繼續閱讀</a>'; 
+ 		if(服務.length>50)服務=服務.substr(0,50)+'<a href="javascript: void(0)" onclick="showAllService('+i+')" style="color:blue">...繼續閱讀</a>'; 
+ 		url=url+items[i].Add; 
+ 		url=url+'&z=16&output=embed&t='; 
+ 		map.src=url; 
+ 		document.getElementById('name').innerHTML=items[i].Name; 
+ 		document.getElementById('web').href=items[i].Website; 
+ 		var star=""; 
+ 		for(var j=0;j<items[i].Grade;j++)star=star+'<img src=http://nicky.esy.es/web/hw5/yellow.png width="12" height="12">'; 
+ 		for(var j=items[i].Grade;j<5;j++)star=star+'<img src=http://nicky.esy.es/web/hw5/space.png width="12" height="12">'; 
+ 		document.getElementById('star').innerHTML=star; 
+ 		document.getElementById('pic1').src=img1; 
+ 		document.getElementById('pic1_txt').innerHTML=items[i].Picdescribe1; 
+		document.getElementById('pic2').src=img2; 
+ 		document.getElementById('pic2_txt').innerHTML=items[i].Picdescribe2; 
+ 		document.getElementById('pic3').src=img3; 
+ 		document.getElementById('pic3_txt').innerHTML=items[i].Picdescribe3; 
+ 		document.getElementById('address').innerHTML='('+items[i].Zipcode+')'+items[i].Add; 
+		document.getElementById('description').innerHTML=簡介; 
+		document.getElementById('phone').innerHTML=items[i].Tel;  		
+		document.getElementById('parking').innerHTML=items[i].Parkinginfo; 
+ 		document.getElementById('Service').innerHTML=服務; 
+ 	} 
+ 	function List10Hotel(){ 
+ 		var str =""; 
+ 		var str2=""; 
+ 		for(var i=0+目前頁面*10;i<10+目前頁面*10;i++){ 
+ 			var 官網url = items[i].Website; 
+ 			var 地址 = items[i].Add; 
+ 			var 電話 =items[i].Tel; 
+ 			var 星級 = items[i].Grade; 
+ 			var 名字 = items[i].Name; 
+ 			var pic1_url = items[i].Picture1; 
+ 			if(pic1_url=="")pic1_url="http://nicky.esy.es/web/hw5/noimg.jpg"; 
+ 			if(i%2==0)str2=str2+'<tr>'; 
+			str2=str2+'<td align="left">'+'<a href="javascript: void(0)" onclick="showInformation('+i+')" >' 
+ 			str2=str2+'<img id="hotel_pic_'+i+'"src='+pic1_url+'  width="320" height="240" alt="沒有照片唷"><br>'; 
+ 			str2=str2+'<font id="hotel_name_'+i+'" size="5">'+名字+'</font>'; 
+ 			for(var j=0;j<星級;j++)str2=str2+'<img src=http://nicky.esy.es/web/hw5/yellow.png width="12" height="12">'; 
+ 			for(var j=星級;j<5;j++)str2=str2+'<img src=http://nicky.esy.es/web/hw5/space.png width="12" height="12">'; 
+ 			str2=str2+'<br><font id="hotel_address_'+i+'">'+地址+'</font>'; 
+ 			 
+			str2=str2+'</a></td>'; 
+			if(i%2==1)str2=str2+'</tr>'; 
+			 
+		} 
+		表格.innerHTML=str2; 
+ 		document.getElementById('now_page').innerHTML=目前頁面+1; 
+ 	} 
+ 	$(function(){ 
+ 		 $.ajax( { 
+  			url: "http://140.134.26.71:58080/web-prog/Hotels", 
+  			type: 'GET', 
+ 			dataType: 'json', 
+ 			success: function(data) { 
+ 				表格=document.getElementById('hoteltable'); 
+ 				items = data.Infos.Info; 
+ 				總頁面=items.length/10; 
+ 				目前頁面=0; 
+				List10Hotel(); 
+ 		 }, 
+  		error: function() { 
+ 			document.getElementById('length').innerHTML='err'; 
+  		} 
+  	}); 
+ }); 
+ </script> 
+ 
+ 
+ </head> 
+ <body> 
+ 	 
+ 	<input type='button' id='lastpage' disabled value='上一頁' onclick='last_page()'> 
+ 		目前是第<lable id='now_page'>1</lable>頁 
+ 	<input type='button' id='nextpage' value='下一頁' onclick='next_page()'><br> 
+ 
+ 
+ 	 
+		<div> 
+			<table border='1' id='hoteltable'  width="660" ><tr><td><img src='http://nicky.esy.es/web/hw5/loading.jpg' width=660 height=400></td></tr></table> 
+ 		</div> 
+		<div style="width:660px;"> 
+			 
+ 					<div style="width:550px;"><font size='6'><lable id='name'>尚未選擇飯店</lable></font> 
+					<lable id='star'></lable><br></div> 
+ 					<div style="width:60px;"><a href="javascript: void(0)" id='web' target="_blank"><img src='http://nicky.esy.es/web/hw5/web.jpg' width='40' height='40' alt='載入失敗'></a></div> 
+					<div style="width:200px;"><img src='http://nicky.esy.es/web/hw5/noimg.jpg' id='pic1' width='200' height='200' alt='沒有照片唷'><br><lable id='pic1_txt' width='200' align="center"></lable></div> 
+					<div style="width:200px;"><img src='http://nicky.esy.es/web/hw5/noimg.jpg' id='pic2' width='200' height='200' alt='沒有照片唷'><br><lable id='pic2_txt' width='200' align="center"></lable></div> 
+					<div style="width:200px;"><img src='http://nicky.esy.es/web/hw5/noimg.jpg' id='pic3' width='200' height='200' alt='沒有照片唷'><br><lable id='pic3_txt' width='200' align="center"></lable></div> 
+ 					 
+					 
+					<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br> 
+ 					 
+					 
+					<img src='http://nicky.esy.es/web/hw5/address.png' width='30' height='30' alt='載入失敗'> 
+					<font size='5'>地址:</font><lable id='address'></lable><br><br> 
+ 					 
+ 					<img src='http://nicky.esy.es/web/hw5/phone.jpg' width='30' height='30' alt='載入失敗'> 
+ 					<font size='5'>電話:</font><lable id='phone'></lable><br><br> 
+ 					 
+ 					<img src='http://nicky.esy.es/web/hw5/parking.gif' width='30' height='30' alt='載入失敗'> 
+ 					<font size='5'>停車:</font><lable id='parking'></lable><br><br> 
+ 					 
+ 					<img src='http://nicky.esy.es/web/hw5/service.png' width='30' height='30' alt='載入失敗'> 
+ 					<font size='5'>服務:</font><lable id='Service'></lable><br><br> 
+ 					 
+ 					<img src='http://nicky.esy.es/web/hw5/information.jpg' width='30' height='30' alt='載入失敗'> 
+ 					<font size='5'>簡介:</font><div><lable id='description' style="LINE-HEIGHT: 14pt "></lable></div><br><br> 
+ 					 
+ 				 
+ 	 				<iframe id='maps' src="http://maps.google.com.tw/maps?f=q&hl=zh-TW&geocode=&q=台中市西屯區文華路100號&z=16&output=embed&t=" width="650" height="650" frameborder="0" style="border:0" allowfullscreen></iframe> 
+ 	 			 
+ 		</div> 
+ 	 
+</body> 
+</html> 
